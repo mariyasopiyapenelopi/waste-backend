@@ -73,22 +73,25 @@ mqttClient.on('message', async (topic, message) => {
 // GET /api/dashboard
 app.get('/api/dashboard', async (req, res) => {
   try {
-    const totalRecyclable = await pool.query(
+const totalRecyclable = await pool.query(
       `SELECT COALESCE(SUM(weight_kg), 0) as total 
       FROM waste_readings 
-      WHERE waste_type = 'recyclable'`
+      WHERE waste_type = 'recyclable'
+      AND DATE(recorded_at) = CURRENT_DATE`
     );
-
-    const bySubType = await pool.query(
+    
+const bySubType = await pool.query(
       `SELECT sub_type, COALESCE(SUM(weight_kg), 0) as total 
       FROM waste_readings 
-      WHERE waste_type = 'recyclable' 
+      WHERE waste_type = 'recyclable'
+      AND DATE(recorded_at) = CURRENT_DATE
       GROUP BY sub_type`
     );
 
-    const totalAll = await pool.query(
+const totalAll = await pool.query(
       `SELECT COALESCE(SUM(weight_kg), 0) as total 
-      FROM waste_readings`
+      FROM waste_readings
+      WHERE DATE(recorded_at) = CURRENT_DATE`
     );
 
     const compartments = await pool.query(
